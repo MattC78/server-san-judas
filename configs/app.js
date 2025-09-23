@@ -4,8 +4,9 @@ import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
-
+import { dbConnetion } from './db.js'; 
 import  'dotenv/config';
+import userModel from '../src/users/user.model.js'; 
 
 const middlewares = (app) => {
     app.use(express.json());
@@ -15,10 +16,20 @@ const middlewares = (app) => {
     app.use(morgan('dev'));
 }
 
-export const initServer = () => {
+const conectarDB = async () => {
+    try{
+        await dbConnetion();
+    }catch(error){
+        console.log(`Eror al conectar la db: ${error.message}`)
+    }
+}
+
+export const initServer = async () => {
     const app = express();
 
     try{
+        middlewares(app)
+        await conectarDB()
         app.listen(process.env.PORT, () => {
             console.log(`Servidor corriendo en el puerto ${process.env.PORT}`)
         })
